@@ -10,7 +10,7 @@ var convo = {}
 
 
 
-function search(ISBN) {
+function search(ISBN, recipientId) {
 //   request({
 //     uri: 'https://www.googleapis.com/books/v1/volumes?q=isbn:' + ISBN,
 //     method: 'GET',
@@ -38,19 +38,31 @@ function search(ISBN) {
     uri: 'https://www.googleapis.com/books/v1/volumes?q=isbn:' + ISBN,
     method: 'GET'
   }, function (error, response, body) {
+    console.log("body", body)
+    console.log("body type", typeof body)
     var parsedBody = JSON.parse(body)
-    // console.log("body is", parsedBody)
-    // console.log("body is", typeof parsedBody)
+    console.log("body is", parsedBody)
+    // console.log("body is type", typeof parsedBody)
     var title = parsedBody.items[0].volumeInfo.title
-    // console.log("title is ", parsedBody.items[0].volumeInfo.title)
+    var author = parsedBody.items[0].volumeInfo.authors
+    var description = parsedBody.items[0].volumeInfo.description
+    
+
+    var bookInfoReply = "The book you are looking for is " + title + " by " + author + 
+   + "\n" + "Description:" + "\n" + description
+   
     
     // var book = JSON.parse(body.volumeInfo)
     console.log ("book title is ",  title)
+
+    sendTextMessage(recipientId, bookInfoReply)
     return "book title is ", title;
     if (!error && response.statusCode == 200) { 
       console.log("Successfully sent message"); 
       return "book title is ", title;
-    } else {console.error("Unable to send message.");console.error(response);console.error(error);}
+    } else {console.error("Unable to send message.");console.error(response);
+    // console.error(error);
+  }
   });
 
 
@@ -69,7 +81,7 @@ function getReplyBasedOnMessage(senderID, message){
     // if (typeof(lastMsg)==='number' && lastMsg.length === 13){
     //  ISBN = lastMsg
     // }
-    search(ISBN)
+    search(ISBN, senderID)
 
     
 
