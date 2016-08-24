@@ -34,9 +34,8 @@ app.post('/webhook', function (req, res) {
     message = message.text;
     var reply = chat.getReplyBasedOnMessage(senderID, message)
     console.log("success")
-    chat.sendTextMessage(senderID, reply)
+    //chat.sendTextMessage(senderID, reply)
   }
-
   else{console.log("Something ain't right")}
   res.sendStatus(200); //required to send FB some response, else all fails.
 
