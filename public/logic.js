@@ -38,30 +38,48 @@ function search(ISBN, recipientId) {
     uri: 'https://www.googleapis.com/books/v1/volumes?q=isbn:' + ISBN,
     method: 'GET'
   }, function (error, response, body) {
+    var parsedBody = JSON.parse(body)
+    
+    if (!error && response.statusCode == 200 && parsedBody.totalItems>0) {
+
     console.log("body", body)
     console.log("body type", typeof body)
-    var parsedBody = JSON.parse(body)
     console.log("body is", parsedBody)
     // console.log("body is type", typeof parsedBody)
     var title = parsedBody.items[0].volumeInfo.title
-    var author = parsedBody.items[0].volumeInfo.authors
-    var description = parsedBody.items[0].volumeInfo.description
-    
 
-    var bookInfoReply = "The book you are looking for is " + title + " by " + author + 
-   + "\n" + "Description:" + "\n" + description
+    if (parsedBody.items[0].volumeInfo.authors !== null) {
+      var author = parsedBody.items[0].volumeInfo.authors
+    } else { 
+      var author = "Unknown"
+    } 
+
+
+    if (parsedBody.items[0].volumeInfo.description !== undefined) {
+      var description = parsedBody.items[0].volumeInfo.description
+      if (description.length > 200) {
+        var description = description.substring(0,200)
+        };
+    } else {
+      var description = "Description unavailable"
+    }
+
+    var bookInfoReply = "The book you are looking for is " + title + " by " + author + "\n" + "\n" + "Description:" + "\n" + description + "\n" + "\n" + "Hit me with another!"
+    
+    } else {
+      bookInfoReply = "Couldn't find that book. Please use a valid ISBN"
+    }
    
     
-    // var book = JSON.parse(body.volumeInfo)
-    console.log ("book title is ",  title)
 
     sendTextMessage(recipientId, bookInfoReply)
-    return "book title is ", title;
     if (!error && response.statusCode == 200) { 
       console.log("Successfully sent message"); 
-      return "book title is ", title;
-    } else {console.error("Unable to send message.");console.error(response);
-    // console.error(error);
+      
+    } else {
+        console.error("Unable to send message.");
+        console.error(response);
+        // console.error(error);
   }
   });
 
@@ -71,10 +89,10 @@ function search(ISBN, recipientId) {
 
 function getReplyBasedOnMessage(senderID, message){
   if (convo.senderID) { //if the convo.senderID exists, it means this user has already begun a conversation with the bot
-    console.log("[if] senderID is", senderID)
+    console.log("conversation exists with ", senderID)
     convo.senderID.push(message)
     var lastMsg = convo.senderID[convo.senderID.length-1]
-    // lastMsg.toLowerCase()
+    lastMsg.toLowerCase()
 
     var ISBN = message;
 
@@ -87,10 +105,12 @@ function getReplyBasedOnMessage(senderID, message){
 
 
   } else { //there is no convo with this sender's ID
-    console.log("[else] senderID is" + senderID)
+    console.log("new conversation started with " + senderID)
     convo.senderID = [message] //create a new convo object with this user, with the message as the first item in the array
     
-    return "give me the ISBN of a book"
+    var sendISBN = "Hey there! I'm BookBot. Give me the ISBN of a book!"
+    sendTextMessage(senderID, sendISBN)
+    // return "Hey there! I'm BookBot. Give me the ISBN of a book!"
   }
 
 
